@@ -1,11 +1,17 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Item, items } from "@/data/items";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ChevronDown, X, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { ChevronDown, X, TrendingUp, TrendingDown, Minus, List, Save } from "lucide-react";
+import { ItemsList } from "./ItemsList";
+import { ThemeToggle } from "./ui/theme-toggle";
+import { TradeHistory } from "./TradeHistory";
+import { useTradeHistory } from "@/hooks/use-trade-history";
+import { Recommendations } from "./Recommendations";
+import { getItemRecommendations } from "@/lib/recommendation-utils";
 
 interface TradeItem {
   item: Item;
@@ -17,6 +23,8 @@ export const TradeCalculator = () => {
   const [theirOffer, setTheirOffer] = useState<TradeItem[]>([]);
   const [openYours, setOpenYours] = useState(false);
   const [openTheirs, setOpenTheirs] = useState(false);
+  const [tradeNotes, setTradeNotes] = useState("");
+  const { addTrade } = useTradeHistory();
 
   const addToYourOffer = (item: Item) => {
     const existing = yourOffer.find(t => t.item.name === item.name);
@@ -66,6 +74,38 @@ export const TradeCalculator = () => {
   };
 
   const tradeStatus = getTradeStatus();
+  
+  // Generate recommendations based on trade balance
+  const yourRecommendations = useMemo(() => 
+    getItemRecommendations(yourOffer, true, theirOffer), 
+    [yourOffer, theirOffer]
+  );
+  
+  const theirRecommendations = useMemo(() => 
+    getItemRecommendations(theirOffer, false, yourOffer), 
+    [theirOffer, yourOffer]
+  );
+
+  const saveTrade = () => {
+    if (yourOffer.length === 0 || theirOffer.length === 0) return;
+    
+    addTrade({
+      yourOffer: {
+        items: yourOffer.map(t => `${t.quantity}x ${t.item.name}`),
+        totalValue: yourTotal
+      },
+      theirOffer: {
+        items: theirOffer.map(t => `${t.quantity}x ${t.item.name}`),
+        totalValue: theirTotal
+      },
+      notes: tradeNotes || undefined
+    });
+    
+    // Clear the form
+    setYourOffer([]);
+    setTheirOffer([]);
+    setTradeNotes("");
+  };
 
   const getTierColor = (tier: string) => {
     const colors: { [key: string]: string } = {
@@ -81,15 +121,22 @@ export const TradeCalculator = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-ocean bg-clip-text text-transparent">
+    <div className="min-h-screen bg-background p-3 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
+        <div className="relative text-center space-y-4">
+          <div className="absolute right-0 top-0">
+            <ThemeToggle />
+          </div>
+          <h1 className="text-3xl md:text-5xl font-bold bg-gradient-ocean bg-clip-text text-transparent">
             Fisch Trade Calculator
           </h1>
           <p className="text-muted-foreground text-lg">
             Calculate win/loss for your trades
           </p>
+          <div className="flex flex-wrap justify-center gap-2">
+            <ItemsList />
+            <TradeHistory />
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -123,7 +170,7 @@ export const TradeCalculator = () => {
                           onSelect={() => addToYourOffer(item)}
                         >
                           <div className="flex items-center justify-between w-full">
-                            <span>{item.name}</span>
+                            <span>{item.name} {item.category === "boat" ? "🚤" : "🎣"}</span>
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className={getTierColor(item.tier)}>
                                 {item.tier}
@@ -142,7 +189,7 @@ export const TradeCalculator = () => {
                           onSelect={() => addToYourOffer(item)}
                         >
                           <div className="flex items-center justify-between w-full">
-                            <span>{item.name}</span>
+                            <span>{item.name} {item.category === "boat" ? "🚤" : "🎣"}</span>
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className={getTierColor(item.tier)}>
                                 {item.tier}
@@ -170,7 +217,7 @@ export const TradeCalculator = () => {
                     className="flex items-center justify-between p-3 bg-secondary rounded-lg border border-border hover:border-primary transition-colors"
                   >
                     <div className="flex-1">
-                      <div className="font-medium text-foreground">{item.name}</div>
+                      <div className="font-medium text-foreground">{item.name} {item.category === "boat" ? "🚤" : "🎣"}</div>
                       <div className="text-sm text-muted-foreground">
                         {item.value} × {quantity} = {(item.value * quantity).toFixed(1)}
                       </div>
@@ -189,10 +236,17 @@ export const TradeCalculator = () => {
                 ))
               )}
             </div>
+            
+            {/* Your Recommendations */}
+            <Recommendations 
+              title="Recommended items to add to your offer:" 
+              items={yourRecommendations}
+              onAddItem={addToYourOffer}
+            />
           </Card>
 
           {/* Their Offer */}
-          <Card className="p-6 space-y-4 bg-gradient-card border-border shadow-strong">
+          <Card className="p-4 md:p-6 space-y-4 bg-gradient-card border-border shadow-strong">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-foreground">Their Offer</h2>
               <div className="text-right">
@@ -221,7 +275,7 @@ export const TradeCalculator = () => {
                           onSelect={() => addToTheirOffer(item)}
                         >
                           <div className="flex items-center justify-between w-full">
-                            <span>{item.name}</span>
+                            <span>{item.name} {item.category === "boat" ? "🚤" : "🎨"}</span>
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className={getTierColor(item.tier)}>
                                 {item.tier}
@@ -240,7 +294,7 @@ export const TradeCalculator = () => {
                           onSelect={() => addToTheirOffer(item)}
                         >
                           <div className="flex items-center justify-between w-full">
-                            <span>{item.name}</span>
+                            <span>{item.name} {item.category === "boat" ? "🚤" : "🎨"}</span>
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className={getTierColor(item.tier)}>
                                 {item.tier}
@@ -268,7 +322,7 @@ export const TradeCalculator = () => {
                     className="flex items-center justify-between p-3 bg-secondary rounded-lg border border-border hover:border-primary transition-colors"
                   >
                     <div className="flex-1">
-                      <div className="font-medium text-foreground">{item.name}</div>
+                      <div className="font-medium text-foreground">{item.name} {item.category === "boat" ? "🚤" : "🎣"}</div>
                       <div className="text-sm text-muted-foreground">
                         {item.value} × {quantity} = {(item.value * quantity).toFixed(1)}
                       </div>
@@ -300,16 +354,45 @@ export const TradeCalculator = () => {
                   {tradeStatus.status === "win" && <TrendingUp className="h-8 w-8 text-success" />}
                   {tradeStatus.status === "loss" && <TrendingDown className="h-8 w-8 text-destructive" />}
                   {tradeStatus.status === "fair" && <Minus className="h-8 w-8 text-warning" />}
-                  <span 
-                    className={`text-4xl font-bold ${
-                      tradeStatus.status === "win" ? "text-success" :
-                      tradeStatus.status === "loss" ? "text-destructive" :
-                      "text-warning"
-                    }`}
-                  >
-                    {tradeStatus.text}
-                  </span>
+                  <div className="text-center">
+                    <span 
+                      className={`text-4xl font-bold ${
+                        tradeStatus.status === "win" ? "text-success" :
+                        tradeStatus.status === "loss" ? "text-destructive" :
+                        "text-warning"
+                      }`}
+                    >
+                      {tradeStatus.text}
+                    </span>
+                    <div 
+                      className={`text-lg font-semibold ${
+                        tradeStatus.status === "win" ? "text-success" :
+                        tradeStatus.status === "loss" ? "text-destructive" :
+                        "text-warning"
+                      }`}
+                    >
+                      {difference > 0 ? "+" : ""}{difference.toFixed(1)} ({percentageDiff > 0 ? "+" : ""}{percentageDiff.toFixed(1)}%)
+                    </div>
+                  </div>
                 </div>
+              </div>
+              
+              <div className="flex flex-col gap-2 w-full md:w-auto">
+                <textarea
+                  placeholder="Add notes about this trade (optional)"
+                  className="w-full p-2 rounded-md border border-border bg-background text-sm md:text-base resize-none"
+                  rows={2}
+                  value={tradeNotes}
+                  onChange={(e) => setTradeNotes(e.target.value)}
+                />
+                <Button 
+                  className="gap-2 text-sm md:text-base py-1 md:py-2" 
+                  onClick={saveTrade}
+                  disabled={yourOffer.length === 0 || theirOffer.length === 0}
+                >
+                  <Save className="h-4 w-4" />
+                  Save Trade
+                </Button>
               </div>
               
               <div className="flex-1 text-center">
