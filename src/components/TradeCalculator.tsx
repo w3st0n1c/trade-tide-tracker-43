@@ -203,6 +203,7 @@ export const TradeCalculator = () => {
                               <Badge variant="outline" className={getTierColor(item.tier)}>
                                 {item.tier}
                               </Badge>
+                              <span className="text-xs text-muted-foreground">D: {item.demand}</span>
                               <span className="text-primary font-semibold">{item.value}</span>
                             </div>
                           </div>
@@ -225,6 +226,7 @@ export const TradeCalculator = () => {
                               <Badge variant="outline" className={getTierColor(item.tier)}>
                                 {item.tier}
                               </Badge>
+                              <span className="text-xs text-muted-foreground">D: {item.demand}</span>
                               <span className="text-primary font-semibold">{item.value}</span>
                             </div>
                           </div>
@@ -253,7 +255,7 @@ export const TradeCalculator = () => {
                         {item.status.toLowerCase().includes("mass duped") && " ⚠️"}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {item.value} × {quantity} = {(item.value * quantity).toFixed(1)}
+                        {item.value} × {quantity} = {(item.value * quantity).toFixed(1)} | Demand: {item.demand}/10
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -317,6 +319,7 @@ export const TradeCalculator = () => {
                               <Badge variant="outline" className={getTierColor(item.tier)}>
                                 {item.tier}
                               </Badge>
+                              <span className="text-xs text-muted-foreground">D: {item.demand}</span>
                               <span className="text-primary font-semibold">{item.value}</span>
                             </div>
                           </div>
@@ -339,6 +342,7 @@ export const TradeCalculator = () => {
                               <Badge variant="outline" className={getTierColor(item.tier)}>
                                 {item.tier}
                               </Badge>
+                              <span className="text-xs text-muted-foreground">D: {item.demand}</span>
                               <span className="text-primary font-semibold">{item.value}</span>
                             </div>
                           </div>
@@ -367,7 +371,7 @@ export const TradeCalculator = () => {
                         {item.status.toLowerCase().includes("mass duped") && " ⚠️"}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {item.value} × {quantity} = {(item.value * quantity).toFixed(1)}
+                        {item.value} × {quantity} = {(item.value * quantity).toFixed(1)} | Demand: {item.demand}/10
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
