@@ -134,12 +134,11 @@ All colors MUST be HSL.
     border-radius: 1rem;
     box-shadow: var(--shadow-panel);
     border: 1px solid hsl(var(--border) / 0.5);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .panel-enhanced:hover {
     box-shadow: var(--shadow-panel), var(--shadow-glow-accent);
-    transform: translateY(-2px);
   }
 
   .value-glow {
@@ -148,18 +147,11 @@ All colors MUST be HSL.
   }
 
   .btn-enhanced {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
+    transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .btn-enhanced:hover {
-    transform: translateY(-1px);
     box-shadow: 0 4px 12px hsl(var(--primary) / 0.3);
-  }
-
-  .btn-enhanced:active {
-    transform: translateY(0);
   }
 
   .fade-in {
@@ -216,13 +208,8 @@ All colors MUST be HSL.
   }
 
   /* Enhanced hover effects for interactive elements */
-  .btn-enhanced:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-glow-accent);
-  }
-
-  .panel-enhanced:hover {
-    box-shadow: var(--shadow-glow);
+  .hover-scale:hover {
+    transform: scale(1.02);
   }
 
   /* Smooth transitions for specific interactive elements */
