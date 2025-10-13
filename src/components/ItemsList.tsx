@@ -53,7 +53,7 @@ export const ItemsList = () => {
         }
         return 0;
       });
-  }, [items, searchQuery, sortConfig]);
+  }, [searchQuery, sortConfig, showFavoritesOnly, isFavorite]);
 
   const requestSort = (key: keyof Item) => {
     let direction: "ascending" | "descending" = "ascending";

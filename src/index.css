@@ -225,8 +225,8 @@ All colors MUST be HSL.
     box-shadow: var(--shadow-glow);
   }
 
-  /* Smooth transitions for all interactive elements */
-  * {
+  /* Smooth transitions for specific interactive elements */
+  button, a, .hover-scale, .btn-enhanced {
     transition: all 0.2s ease-in-out;
   }
 
