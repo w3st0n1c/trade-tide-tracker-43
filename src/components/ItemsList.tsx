@@ -79,21 +79,21 @@ export const ItemsList = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="gap-2 w-full sm:w-auto">
+        <Button variant="outline" className="gap-2 w-full sm:w-auto btn-enhanced">
           <Search className="h-4 w-4" />
           View All Items
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] w-[95vw]">
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] w-[95vw] panel-enhanced">
         <DialogHeader>
-          <DialogTitle>All Tradable Items</DialogTitle>
+          <DialogTitle className="text-2xl font-bold tracking-wide">All Tradable Items</DialogTitle>
         </DialogHeader>
         <div className="mb-4 space-y-2">
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search items..."
-              className="pl-8"
+              className="pl-8 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -102,7 +102,7 @@ export const ItemsList = () => {
             <Button
               variant="outline"
               size="sm"
-              className={`gap-2 w-full sm:w-auto ${showFavoritesOnly ? "bg-primary/10" : ""}`}
+              className={`gap-2 w-full sm:w-auto btn-enhanced ${showFavoritesOnly ? "bg-primary/10" : ""}`}
               onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
             >
               <Star className={`h-4 w-4 ${showFavoritesOnly ? "fill-yellow-400 text-yellow-400" : ""}`} />

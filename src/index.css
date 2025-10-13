@@ -54,7 +54,7 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 220 25% 8%;
+    --background: 220 25% 6%;
     --foreground: 210 40% 98%;
 
     --card: 220 20% 12%;
@@ -88,13 +88,20 @@ All colors MUST be HSL.
     --input: 220 15% 18%;
     --ring: 193 100% 50%;
 
-    --gradient-ocean: linear-gradient(135deg, hsl(193 100% 50%), hsl(220 100% 50%));
+    /* Enhanced gradients and backgrounds */
+    --gradient-ocean: linear-gradient(135deg, hsl(193 100% 50%), hsl(220 100% 50%), hsl(280 70% 60%));
     --gradient-win: linear-gradient(135deg, hsl(142 76% 45%), hsl(158 64% 52%));
     --gradient-loss: linear-gradient(135deg, hsl(0 84% 60%), hsl(340 82% 52%));
-    --gradient-card: linear-gradient(180deg, hsl(220 20% 14%), hsl(220 20% 10%));
+    --gradient-card: linear-gradient(145deg, hsl(220 20% 14%), hsl(220 25% 12%), hsl(220 20% 10%));
+    --gradient-background: radial-gradient(ellipse at top, hsl(220 25% 8%), hsl(220 30% 6%), hsl(220 25% 4%));
+    --gradient-panel: linear-gradient(145deg, hsl(220 20% 14% / 0.8), hsl(220 25% 12% / 0.9));
 
-    --shadow-glow: 0 0 40px hsl(193 100% 50% / 0.2);
-    --shadow-strong: 0 10px 40px -10px hsl(0 0% 0% / 0.6);
+    /* Enhanced shadows and glows */
+    --shadow-glow: 0 0 40px hsl(193 100% 50% / 0.3);
+    --shadow-strong: 0 10px 40px -10px hsl(0 0% 0% / 0.8);
+    --shadow-panel: 0 8px 32px -8px hsl(0 0% 0% / 0.4), 0 0 0 1px hsl(220 15% 25% / 0.5);
+    --shadow-glow-accent: 0 0 20px hsl(280 70% 60% / 0.4);
+    --shadow-value-glow: 0 0 15px hsl(193 100% 50% / 0.5);
 
     --sidebar-background: 220 25% 8%;
     --sidebar-foreground: 210 40% 98%;
@@ -114,5 +121,138 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    background: var(--gradient-background);
+    min-height: 100vh;
+  }
+}
+
+/* Enhanced component styles */
+@layer components {
+  .panel-enhanced {
+    background: var(--gradient-panel);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-panel);
+    border: 1px solid hsl(var(--border) / 0.5);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .panel-enhanced:hover {
+    box-shadow: var(--shadow-panel), var(--shadow-glow-accent);
+    transform: translateY(-2px);
+  }
+
+  .value-glow {
+    text-shadow: var(--shadow-value-glow);
+    transition: all 0.3s ease;
+  }
+
+  .btn-enhanced {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-enhanced:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px hsl(var(--primary) / 0.3);
+  }
+
+  .btn-enhanced:active {
+    transform: translateY(0);
+  }
+
+  .fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .slide-in {
+    animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% {
+      text-shadow: var(--shadow-value-glow);
+    }
+    50% {
+      text-shadow: 0 0 25px hsl(193 100% 50% / 0.8);
+    }
+  }
+
+  /* Add fade-in animation for items */
+  .item-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  /* Add value change animation */
+  .value-change {
+    animation: pulseGlow 0.5s ease-in-out;
+  }
+
+  /* Enhanced hover effects for interactive elements */
+  .btn-enhanced:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-glow-accent);
+  }
+
+  .panel-enhanced:hover {
+    box-shadow: var(--shadow-glow);
+  }
+
+  /* Smooth transitions for all interactive elements */
+  * {
+    transition: all 0.2s ease-in-out;
+  }
+
+  /* Enhanced focus states */
+  input:focus, textarea:focus, button:focus {
+    outline: none;
+    ring: 2px solid hsl(var(--primary) / 0.3);
+    ring-offset: 2px;
+  }
+
+  /* Improved scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.5);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.7);
   }
 }

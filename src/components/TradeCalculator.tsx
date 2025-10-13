@@ -121,38 +121,61 @@ export const TradeCalculator = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-3 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
-        <div className="relative text-center space-y-4">
+    <div className="min-h-screen p-3 md:p-6">
+      <div className="max-w-6xl mx-auto space-y-6">
+        <div className="relative text-center space-y-6">
           <div className="absolute right-0 top-0">
             <ThemeToggle />
           </div>
-          <h1 className="text-3xl md:text-5xl font-bold bg-gradient-ocean bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-6xl font-black bg-gradient-ocean bg-clip-text text-transparent tracking-tight">
             Fisch Trade Calculator
           </h1>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-xl font-medium">
             Calculate win/loss for your trades
           </p>
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex flex-wrap justify-center gap-3">
             <ItemsList />
             <TradeHistory />
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-4 relative">
+          {/* Trade Fairness Indicator */}
+          {(yourOffer.length > 0 || theirOffer.length > 0) && (
+            <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 hidden md:block">
+              <div className="bg-background border-2 border-primary rounded-full p-4 shadow-lg">
+                <div className="text-center">
+                  {tradeStatus.status === "win" && <TrendingUp className="h-6 w-6 text-success mx-auto mb-1" />}
+                  {tradeStatus.status === "loss" && <TrendingDown className="h-6 w-6 text-destructive mx-auto mb-1" />}
+                  {tradeStatus.status === "fair" && <Minus className="h-6 w-6 text-warning mx-auto mb-1" />}
+                  <div className={`text-sm font-bold ${
+                    tradeStatus.status === "win" ? "text-success" :
+                    tradeStatus.status === "loss" ? "text-destructive" :
+                    "text-warning"
+                  }`}>
+                    {tradeStatus.text}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {difference > 0 ? "+" : ""}{difference.toFixed(1)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {/* Your Offer */}
-          <Card className="p-6 space-y-4 bg-gradient-card border-border shadow-strong">
+          <Card className="panel-enhanced p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-foreground">Your Offer</h2>
+              <h2 className="text-2xl font-bold text-foreground tracking-wide">Your Offer</h2>
               <div className="text-right">
-                <div className="text-sm text-muted-foreground">Total Value</div>
-                <div className="text-2xl font-bold text-primary">{yourTotal.toFixed(1)}</div>
+                <div className="text-sm text-muted-foreground font-medium">Total Value</div>
+                <div className="text-2xl font-bold text-primary value-glow">{yourTotal.toFixed(1)}</div>
               </div>
             </div>
 
             <Popover open={openYours} onOpenChange={setOpenYours}>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
+                <Button variant="outline" className="w-full justify-between btn-enhanced">
                   Add Item
                   <ChevronDown className="ml-2 h-4 w-4" />
                 </Button>
@@ -246,18 +269,18 @@ export const TradeCalculator = () => {
           </Card>
 
           {/* Their Offer */}
-          <Card className="p-4 md:p-6 space-y-4 bg-gradient-card border-border shadow-strong">
+          <Card className="panel-enhanced p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-foreground">Their Offer</h2>
+              <h2 className="text-2xl font-bold text-foreground tracking-wide">Their Offer</h2>
               <div className="text-right">
-                <div className="text-sm text-muted-foreground">Total Value</div>
-                <div className="text-2xl font-bold text-primary">{theirTotal.toFixed(1)}</div>
+                <div className="text-sm text-muted-foreground font-medium">Total Value</div>
+                <div className="text-2xl font-bold text-primary value-glow">{theirTotal.toFixed(1)}</div>
               </div>
             </div>
 
             <Popover open={openTheirs} onOpenChange={setOpenTheirs}>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
+                <Button variant="outline" className="w-full justify-between btn-enhanced">
                   Add Item
                   <ChevronDown className="ml-2 h-4 w-4" />
                 </Button>
@@ -346,17 +369,17 @@ export const TradeCalculator = () => {
 
         {/* Trade Result */}
         {(yourOffer.length > 0 || theirOffer.length > 0) && (
-          <Card className="p-8 bg-gradient-card border-border shadow-glow">
+          <Card className="panel-enhanced p-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex-1 text-center md:text-left">
-                <div className="text-lg text-muted-foreground mb-2">Trade Status</div>
+                <div className="text-lg text-muted-foreground mb-2 font-medium">Trade Status</div>
                 <div className="flex items-center gap-3 justify-center md:justify-start">
                   {tradeStatus.status === "win" && <TrendingUp className="h-8 w-8 text-success" />}
                   {tradeStatus.status === "loss" && <TrendingDown className="h-8 w-8 text-destructive" />}
                   {tradeStatus.status === "fair" && <Minus className="h-8 w-8 text-warning" />}
                   <div className="text-center">
                     <span 
-                      className={`text-4xl font-bold ${
+                      className={`text-4xl font-black tracking-tight value-glow ${
                         tradeStatus.status === "win" ? "text-success" :
                         tradeStatus.status === "loss" ? "text-destructive" :
                         "text-warning"
@@ -365,7 +388,7 @@ export const TradeCalculator = () => {
                       {tradeStatus.text}
                     </span>
                     <div 
-                      className={`text-lg font-semibold ${
+                      className={`text-lg font-bold tracking-wide ${
                         tradeStatus.status === "win" ? "text-success" :
                         tradeStatus.status === "loss" ? "text-destructive" :
                         "text-warning"
@@ -380,13 +403,13 @@ export const TradeCalculator = () => {
               <div className="flex flex-col gap-2 w-full md:w-auto">
                 <textarea
                   placeholder="Add notes about this trade (optional)"
-                  className="w-full p-2 rounded-md border border-border bg-background text-sm md:text-base resize-none"
+                  className="w-full p-3 rounded-lg border border-border bg-background text-sm md:text-base resize-none focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                   rows={2}
                   value={tradeNotes}
                   onChange={(e) => setTradeNotes(e.target.value)}
                 />
                 <Button 
-                  className="gap-2 text-sm md:text-base py-1 md:py-2" 
+                  className="gap-2 text-sm md:text-base py-2 md:py-3 btn-enhanced" 
                   onClick={saveTrade}
                   disabled={yourOffer.length === 0 || theirOffer.length === 0}
                 >
@@ -396,20 +419,20 @@ export const TradeCalculator = () => {
               </div>
               
               <div className="flex-1 text-center">
-                <div className="text-lg text-muted-foreground mb-2">Value Difference</div>
-                <div className="text-4xl font-bold text-primary">
+                <div className="text-lg text-muted-foreground mb-2 font-medium">Value Difference</div>
+                <div className="text-4xl font-bold text-primary value-glow">
                   {difference > 0 ? "+" : ""}{difference.toFixed(1)}
                 </div>
-                <div className="text-lg text-muted-foreground mt-1">
+                <div className="text-lg text-muted-foreground mt-1 font-medium">
                   ({percentageDiff > 0 ? "+" : ""}{percentageDiff.toFixed(1)}%)
                 </div>
               </div>
 
               <div className="flex-1 text-center md:text-right">
-                <div className="text-lg text-muted-foreground mb-2">Summary</div>
-                <div className="text-foreground">
-                  <div>You give: <span className="text-primary font-semibold">{yourTotal.toFixed(1)}</span></div>
-                  <div>You get: <span className="text-primary font-semibold">{theirTotal.toFixed(1)}</span></div>
+                <div className="text-lg text-muted-foreground mb-2 font-medium">Summary</div>
+                <div className="text-foreground space-y-1">
+                  <div>You give: <span className="text-primary font-bold value-glow">{yourTotal.toFixed(1)}</span></div>
+                  <div>You get: <span className="text-primary font-bold value-glow">{theirTotal.toFixed(1)}</span></div>
                 </div>
               </div>
             </div>

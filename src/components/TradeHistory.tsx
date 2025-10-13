@@ -15,20 +15,20 @@ export const TradeHistory = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="gap-2">
+        <Button variant="outline" className="gap-2 btn-enhanced">
           <History className="h-4 w-4" />
           Trade History
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh]">
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] panel-enhanced">
         <DialogHeader>
-          <DialogTitle className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+          <DialogTitle className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 text-2xl font-bold tracking-wide">
             <span>Trade History</span>
             <div className="flex gap-2 w-full sm:w-auto">
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="gap-1 flex-1 sm:flex-auto" 
+                className="gap-1 flex-1 sm:flex-auto btn-enhanced" 
                 disabled={tradeHistory.length === 0}
                 onClick={() => exportTradeHistoryAsCSV(tradeHistory)}
               >
@@ -37,7 +37,7 @@ export const TradeHistory = () => {
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive" size="sm" className="gap-1 flex-1 sm:flex-auto" disabled={tradeHistory.length === 0}>
+                  <Button variant="destructive" size="sm" className="gap-1 flex-1 sm:flex-auto btn-enhanced" disabled={tradeHistory.length === 0}>
                     <Trash2 className="h-4 w-4" />
                     Clear All
                   </Button>
