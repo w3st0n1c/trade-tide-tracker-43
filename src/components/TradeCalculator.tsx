@@ -12,6 +12,7 @@ import { TradeHistory } from "./TradeHistory";
 import { useTradeHistory } from "@/hooks/use-trade-history";
 import { Recommendations } from "./Recommendations";
 import { getItemRecommendations } from "@/lib/recommendation-utils";
+import { IconLegend } from "./IconLegend";
 
 interface TradeItem {
   item: Item;
@@ -136,6 +137,7 @@ export const TradeCalculator = () => {
           <div className="flex flex-wrap justify-center gap-3">
             <ItemsList />
             <TradeHistory />
+            <IconLegend />
           </div>
         </div>
 
@@ -193,7 +195,10 @@ export const TradeCalculator = () => {
                           onSelect={() => addToYourOffer(item)}
                         >
                           <div className="flex items-center justify-between w-full">
-                            <span>{item.name} {item.category === "boat" ? "🚤" : "🎣"}</span>
+                            <span>
+                              {item.name} {item.category === "boat" ? "🚤" : "🎣"}
+                              {item.status.toLowerCase().includes("mass duped") && " ⚠️"}
+                            </span>
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className={getTierColor(item.tier)}>
                                 {item.tier}
@@ -212,7 +217,10 @@ export const TradeCalculator = () => {
                           onSelect={() => addToYourOffer(item)}
                         >
                           <div className="flex items-center justify-between w-full">
-                            <span>{item.name} {item.category === "boat" ? "🚤" : "🎣"}</span>
+                            <span>
+                              {item.name} {item.category === "boat" ? "🚤" : "🎣"}
+                              {item.status.toLowerCase().includes("mass duped") && " ⚠️"}
+                            </span>
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className={getTierColor(item.tier)}>
                                 {item.tier}
@@ -240,7 +248,10 @@ export const TradeCalculator = () => {
                     className="flex items-center justify-between p-3 bg-secondary rounded-lg border border-border hover:border-primary transition-colors"
                   >
                     <div className="flex-1">
-                      <div className="font-medium text-foreground">{item.name} {item.category === "boat" ? "🚤" : "🎣"}</div>
+                      <div className="font-medium text-foreground">
+                        {item.name} {item.category === "boat" ? "🚤" : "🎣"}
+                        {item.status.toLowerCase().includes("mass duped") && " ⚠️"}
+                      </div>
                       <div className="text-sm text-muted-foreground">
                         {item.value} × {quantity} = {(item.value * quantity).toFixed(1)}
                       </div>
@@ -298,7 +309,10 @@ export const TradeCalculator = () => {
                           onSelect={() => addToTheirOffer(item)}
                         >
                           <div className="flex items-center justify-between w-full">
-                            <span>{item.name} {item.category === "boat" ? "🚤" : "🎨"}</span>
+                            <span>
+                              {item.name} {item.category === "boat" ? "🚤" : "🎣"}
+                              {item.status.toLowerCase().includes("mass duped") && " ⚠️"}
+                            </span>
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className={getTierColor(item.tier)}>
                                 {item.tier}
@@ -317,7 +331,10 @@ export const TradeCalculator = () => {
                           onSelect={() => addToTheirOffer(item)}
                         >
                           <div className="flex items-center justify-between w-full">
-                            <span>{item.name} {item.category === "boat" ? "🚤" : "🎨"}</span>
+                            <span>
+                              {item.name} {item.category === "boat" ? "🚤" : "🎣"}
+                              {item.status.toLowerCase().includes("mass duped") && " ⚠️"}
+                            </span>
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className={getTierColor(item.tier)}>
                                 {item.tier}
@@ -345,7 +362,10 @@ export const TradeCalculator = () => {
                     className="flex items-center justify-between p-3 bg-secondary rounded-lg border border-border hover:border-primary transition-colors"
                   >
                     <div className="flex-1">
-                      <div className="font-medium text-foreground">{item.name} {item.category === "boat" ? "🚤" : "🎣"}</div>
+                      <div className="font-medium text-foreground">
+                        {item.name} {item.category === "boat" ? "🚤" : "🎣"}
+                        {item.status.toLowerCase().includes("mass duped") && " ⚠️"}
+                      </div>
                       <div className="text-sm text-muted-foreground">
                         {item.value} × {quantity} = {(item.value * quantity).toFixed(1)}
                       </div>

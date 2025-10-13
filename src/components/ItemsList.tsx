@@ -168,6 +168,7 @@ export const ItemsList = () => {
                       <Star className={`h-4 w-4 ${isFavorite(item.name) ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`} />
                     </Button>
                     {item.name} {item.category === "boat" ? "🚤" : "🎣"}
+                    {item.status.toLowerCase().includes("mass duped") && " ⚠️"}
                   </TableCell>
                   <TableCell>{item.value}</TableCell>
                   <TableCell>
