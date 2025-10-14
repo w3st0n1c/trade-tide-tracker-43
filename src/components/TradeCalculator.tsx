@@ -5,7 +5,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ChevronDown, X, TrendingUp, TrendingDown, Minus, List, Save, Share2, Scale, ChevronRight } from "lucide-react";
+import { ChevronDown, X, TrendingUp, TrendingDown, Minus, List, Save, Share2, Scale, ChevronRight, Coins, Flame } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Progress } from "@/components/ui/progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
 import { ItemsList } from "./ItemsList";
@@ -78,6 +80,12 @@ export const TradeCalculator = () => {
   const theirTotal = calculateTotal(theirOffer);
   const difference = theirTotal - yourTotal;
   const percentageDiff = yourTotal > 0 ? ((difference / yourTotal) * 100) : 0;
+
+  // UI helpers
+  const yourValueColorClass = difference < 0 ? 'text-success' : difference > 0 ? 'text-destructive' : 'text-warning';
+  const theirValueColorClass = difference > 0 ? 'text-success' : difference < 0 ? 'text-destructive' : 'text-warning';
+  const totalItemCount = yourOffer.reduce((c, t) => c + t.quantity, 0) + theirOffer.reduce((c, t) => c + t.quantity, 0);
+  const progressPercent = Math.min((totalItemCount / 20) * 100, 100);
 
   const yourDemandTotal = calculateDemandTotal(yourOffer);
   const theirDemandTotal = calculateDemandTotal(theirOffer);
@@ -292,8 +300,8 @@ export const TradeCalculator = () => {
           
           {/* Your Offer */}
           <Card 
-            className={`panel-enhanced p-6 space-y-4 transition-all duration-300 ${
-              yourOfferActive ? 'ring-2 ring-primary shadow-[0_0_30px_rgba(0,206,209,0.3)]' : ''
+            className={`panel-enhanced glass-card p-6 space-y-4 transition-all duration-300 ${
+              yourOfferActive ? 'ring-2 ring-primary shadow-[0_0_30px_rgba(0,206,209,0.3)] pulse-glow' : ''
             }`}
             onFocus={() => setYourOfferActive(true)}
             onBlur={() => setYourOfferActive(false)}
@@ -306,11 +314,27 @@ export const TradeCalculator = () => {
               </h2>
               <div className="text-right space-y-2">
                 <div>
-                  <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Total Value</div>
-                  <div className="text-3xl font-black text-primary value-glow">{yourTotal.toFixed(1)}</div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                        <Coins className="h-3 w-3 text-primary" />
+                        <span>Total Value</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>Sum of item values on your side</TooltipContent>
+                  </Tooltip>
+                  <div className={`text-3xl font-black value-glow ${yourValueColorClass}`}>{yourTotal.toFixed(1)}</div>
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Total Demand</div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                        <Flame className="h-3 w-3 text-accent" />
+                        <span>Total Demand</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>Sum of demand (0–10 scale) on your side</TooltipContent>
+                  </Tooltip>
                   <div className="text-2xl font-black demand-display">{yourDemandTotal.toFixed(1)}/10</div>
                 </div>
               </div>
@@ -325,7 +349,7 @@ export const TradeCalculator = () => {
               </PopoverTrigger>
               <PopoverContent className="w-full p-0" align="start">
                 <Command>
-                  <CommandInput placeholder="Search items..." />
+                  <CommandInput className="shimmer-placeholder" placeholder="Search items..." />
                   <CommandList>
                     <CommandEmpty>No items found.</CommandEmpty>
                     <CommandGroup heading="Boats">
@@ -467,8 +491,8 @@ export const TradeCalculator = () => {
 
           {/* Their Offer */}
           <Card 
-            className={`panel-enhanced p-6 space-y-4 transition-all duration-300 ${
-              theirOfferActive ? 'ring-2 ring-primary shadow-[0_0_30px_rgba(0,206,209,0.3)]' : ''
+            className={`panel-enhanced glass-card p-6 space-y-4 transition-all duration-300 ${
+              theirOfferActive ? 'ring-2 ring-primary shadow-[0_0_30px_rgba(0,206,209,0.3)] pulse-glow' : ''
             }`}
             onFocus={() => setTheirOfferActive(true)}
             onBlur={() => setTheirOfferActive(false)}
@@ -481,11 +505,27 @@ export const TradeCalculator = () => {
               </h2>
               <div className="text-right space-y-2">
                 <div>
-                  <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Total Value</div>
-                  <div className="text-3xl font-black text-primary value-glow">{theirTotal.toFixed(1)}</div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                        <Coins className="h-3 w-3 text-primary" />
+                        <span>Total Value</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>Sum of item values on their side</TooltipContent>
+                  </Tooltip>
+                  <div className={`text-3xl font-black value-glow ${theirValueColorClass}`}>{theirTotal.toFixed(1)}</div>
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Total Demand</div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                        <Flame className="h-3 w-3 text-accent" />
+                        <span>Total Demand</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>Sum of demand (0–10 scale) on their side</TooltipContent>
+                  </Tooltip>
                   <div className="text-2xl font-black demand-display">{theirDemandTotal.toFixed(1)}/10</div>
                 </div>
               </div>
@@ -500,7 +540,7 @@ export const TradeCalculator = () => {
               </PopoverTrigger>
               <PopoverContent className="w-full p-0" align="start">
                 <Command>
-                  <CommandInput placeholder="Search items..." />
+                  <CommandInput className="shimmer-placeholder" placeholder="Search items..." />
                   <CommandList>
                     <CommandEmpty>No items found.</CommandEmpty>
                     <CommandGroup heading="Boats">
@@ -636,6 +676,13 @@ export const TradeCalculator = () => {
 
         {/* Trade Result */}
         {(yourOffer.length > 0 || theirOffer.length > 0) && (
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-muted-foreground font-semibold uppercase tracking-wider">Offer Build Progress</span>
+              <span className="text-xs text-muted-foreground">{totalItemCount} items</span>
+            </div>
+            <Progress value={progressPercent} className="h-2" />
+          </div>
           <Card className="panel-enhanced p-8 space-y-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex-1 text-center md:text-left">

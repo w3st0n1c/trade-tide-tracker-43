@@ -1,0 +1,102 @@
+/* Global animated background gradient and subtle particles */
+body {
+  background: radial-gradient(1200px circle at 10% 10%, rgba(0, 206, 209, 0.08), transparent 40%),
+              radial-gradient(1400px circle at 90% 20%, rgba(255, 99, 132, 0.08), transparent 50%),
+              linear-gradient(180deg, hsl(222 50% 10%) 0%, hsl(222 50% 6%) 100%);
+  background-attachment: fixed;
+}
+
+/* Particle overlay using pseudo-element */
+body::before {
+  content: "";
+  position: fixed;
+  left: 0; top: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,0.06), transparent),
+    radial-gradient(1.5px 1.5px at 60% 70%, rgba(255,255,255,0.05), transparent),
+    radial-gradient(2px 2px at 80% 20%, rgba(255,255,255,0.04), transparent);
+  animation: drift 30s linear infinite;
+}
+
+@keyframes drift {
+  0% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(-8px) translateX(6px); }
+  100% { transform: translateY(0) translateX(0); }
+}
+
+/* Glassmorphism card effect */
+.glass-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* Pulse glow outline on interaction */
+.pulse-glow {
+  animation: pulseGlow 4s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 rgba(0, 206, 209, 0.0); }
+  50% { box-shadow: 0 0 30px rgba(0, 206, 209, 0.25); }
+  100% { box-shadow: 0 0 0 rgba(0, 206, 209, 0.0); }
+}
+
+/* Buttons and dropdowns hover transitions */
+.btn-enhanced,
+button,
+select {
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-enhanced:hover,
+button:hover,
+select:hover {
+  transform: translateY(-1px) scale(1.01);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.btn-enhanced:active,
+button:active {
+  transform: scale(0.98);
+  animation: clickBounce 200ms ease;
+}
+
+@keyframes clickBounce {
+  0% { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+
+/* Custom cursor glow over interactables */
+button:hover, a:hover, select:hover, .btn-enhanced:hover {
+  cursor: pointer;
+  filter: drop-shadow(0 0 6px rgba(0, 206, 209, 0.35));
+}
+
+/* Shimmering placeholder for inputs */
+.shimmer-placeholder::placeholder {
+  color: rgba(255,255,255,0.6);
+}
+.shimmer-placeholder {
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.05) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Tooltip tweak for metric labels */
+.tooltip-content {
+  backdrop-filter: blur(10px);
+}
+
+/* Progress styling tweak */
+.progress { border-radius: 999px; overflow: hidden; }
