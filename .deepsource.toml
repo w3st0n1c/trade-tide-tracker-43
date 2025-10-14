@@ -1,9 +1,7 @@
-version = 1 
- 
-[[analyzers]] 
-name = "eslint" 
-enabled = true 
- 
-[[analyzers]] 
-name = "node" 
-enabled = true 
+version = 1
+
+[[analyzers]]
+name = "eslint"
+
+[[analyzers]]
+name = "node"
