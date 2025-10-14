@@ -226,11 +226,8 @@ All colors MUST be HSL.
 
   /* Enhanced demand display styling */
   .demand-display {
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-foreground) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    /* Removed the blur-causing filter */
+    color: hsl(var(--accent));
+    font-weight: 700;
   }
 
   .trade-status-section {
