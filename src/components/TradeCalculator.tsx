@@ -676,14 +676,15 @@ export const TradeCalculator = () => {
 
         {/* Trade Result */}
         {(yourOffer.length > 0 || theirOffer.length > 0) && (
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground font-semibold uppercase tracking-wider">Offer Build Progress</span>
-              <span className="text-xs text-muted-foreground">{totalItemCount} items</span>
+          <>
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-muted-foreground font-semibold uppercase tracking-wider">Offer Build Progress</span>
+                <span className="text-xs text-muted-foreground">{totalItemCount} items</span>
+              </div>
+              <Progress value={progressPercent} className="h-2" />
             </div>
-            <Progress value={progressPercent} className="h-2" />
-          </div>
-          <Card className="panel-enhanced p-8 space-y-6">
+            <Card className="panel-enhanced p-8 space-y-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex-1 text-center md:text-left">
                 <div className="text-xl text-muted-foreground mb-3 font-bold uppercase tracking-wider">Trade Status</div>
@@ -799,7 +800,8 @@ export const TradeCalculator = () => {
                 </Button>
               </div>
             </div>
-          </Card>
+            </Card>
+          </>
         )}
       </div>
     </div>
