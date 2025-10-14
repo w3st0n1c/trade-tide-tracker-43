@@ -5,7 +5,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ChevronDown, X, TrendingUp, TrendingDown, Minus, List, Save } from "lucide-react";
+import { ChevronDown, X, TrendingUp, TrendingDown, Minus, List, Save, Share2, Scale, ChevronRight } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useToast } from "@/hooks/use-toast";
 import { ItemsList } from "./ItemsList";
 import { ThemeToggle } from "./ui/theme-toggle";
 import { TradeHistory } from "./TradeHistory";
@@ -25,7 +27,12 @@ export const TradeCalculator = () => {
   const [openYours, setOpenYours] = useState(false);
   const [openTheirs, setOpenTheirs] = useState(false);
   const [tradeNotes, setTradeNotes] = useState("");
+  const [expandedYourItems, setExpandedYourItems] = useState<Set<string>>(new Set());
+  const [expandedTheirItems, setExpandedTheirItems] = useState<Set<string>>(new Set());
+  const [yourOfferActive, setYourOfferActive] = useState(false);
+  const [theirOfferActive, setTheirOfferActive] = useState(false);
   const { addTrade } = useTradeHistory();
+  const { toast } = useToast();
 
   const addToYourOffer = (item: Item) => {
     const existing = yourOffer.find(t => t.item.name === item.name);
@@ -104,7 +111,14 @@ export const TradeCalculator = () => {
   );
 
   const saveTrade = () => {
-    if (yourOffer.length === 0 || theirOffer.length === 0) return;
+    if (yourOffer.length === 0 || theirOffer.length === 0) {
+      toast({
+        title: "Cannot save trade",
+        description: "Both sides must have at least one item",
+        variant: "destructive"
+      });
+      return;
+    }
     
     addTrade({
       yourOffer: {
@@ -118,23 +132,118 @@ export const TradeCalculator = () => {
       notes: tradeNotes || undefined
     });
     
+    toast({
+      title: "Trade saved!",
+      description: "Your trade has been saved to history",
+    });
+    
     // Clear the form
     setYourOffer([]);
     setTheirOffer([]);
     setTradeNotes("");
   };
 
+  const shareTrade = () => {
+    if (yourOffer.length === 0 || theirOffer.length === 0) {
+      toast({
+        title: "Cannot share trade",
+        description: "Both sides must have at least one item",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const tradeText = `Fisch Trade Calculator\n\nYour Offer (${yourTotal.toFixed(1)} value):\n${yourOffer.map(t => `• ${t.quantity}x ${t.item.name} (${(t.item.value * t.quantity).toFixed(1)})`).join('\n')}\n\nTheir Offer (${theirTotal.toFixed(1)} value):\n${theirOffer.map(t => `• ${t.quantity}x ${t.item.name} (${(t.item.value * t.quantity).toFixed(1)})`).join('\n')}\n\nResult: ${tradeStatus.text} (${difference > 0 ? '+' : ''}${difference.toFixed(1)})`;
+    
+    navigator.clipboard.writeText(tradeText);
+    toast({
+      title: "Trade copied to clipboard!",
+      description: "Share it with your friends",
+    });
+  };
+
+  const balanceTrade = () => {
+    if (yourOffer.length === 0 || theirOffer.length === 0) {
+      toast({
+        title: "Cannot balance trade",
+        description: "Both sides must have at least one item",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const diff = Math.abs(difference);
+    const suggestions = [];
+
+    if (difference > 0) {
+      // You're winning, suggest items to add to your offer
+      const sortedItems = items
+        .filter(item => !yourOffer.some(t => t.item.name === item.name))
+        .sort((a, b) => Math.abs(a.value - diff) - Math.abs(b.value - diff))
+        .slice(0, 3);
+      
+      suggestions.push(`You're winning by ${diff.toFixed(1)}. Consider adding:`);
+      sortedItems.forEach(item => suggestions.push(`• ${item.name} (${item.value})`));
+    } else if (difference < 0) {
+      // You're losing, suggest items they should add
+      const sortedItems = items
+        .filter(item => !theirOffer.some(t => t.item.name === item.name))
+        .sort((a, b) => Math.abs(a.value - diff) - Math.abs(b.value - diff))
+        .slice(0, 3);
+      
+      suggestions.push(`You're losing by ${diff.toFixed(1)}. They should add:`);
+      sortedItems.forEach(item => suggestions.push(`• ${item.name} (${item.value})`));
+    } else {
+      suggestions.push("Trade is perfectly balanced!");
+    }
+
+    toast({
+      title: "Trade Balance Analysis",
+      description: suggestions.join('\n'),
+    });
+  };
+
+  const toggleYourItemExpanded = (itemName: string) => {
+    setExpandedYourItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(itemName)) {
+        newSet.delete(itemName);
+      } else {
+        newSet.add(itemName);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleTheirItemExpanded = (itemName: string) => {
+    setExpandedTheirItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(itemName)) {
+        newSet.delete(itemName);
+      } else {
+        newSet.add(itemName);
+      }
+      return newSet;
+    });
+  };
+
   const getTierColor = (tier: string) => {
     const colors: { [key: string]: string } = {
-      SS: "bg-accent text-accent-foreground",
-      S: "bg-primary text-primary-foreground",
-      A: "bg-success text-success-foreground",
-      B: "bg-secondary text-secondary-foreground",
-      C: "bg-muted text-muted-foreground",
-      D: "bg-border text-foreground",
-      F: "bg-border text-muted-foreground"
+      SS: "bg-accent text-accent-foreground border-accent",
+      S: "bg-primary text-primary-foreground border-primary",
+      A: "bg-success text-success-foreground border-success",
+      B: "bg-secondary text-secondary-foreground border-secondary",
+      C: "bg-muted text-muted-foreground border-muted",
+      D: "bg-border text-foreground border-border",
+      F: "bg-border text-muted-foreground border-border"
     };
     return colors[tier] || colors.C;
+  };
+
+  const getDemandColor = (demand: number) => {
+    if (demand >= 8) return "text-success";
+    if (demand >= 5) return "text-warning";
+    return "text-destructive";
   };
 
   return (
@@ -182,17 +291,27 @@ export const TradeCalculator = () => {
           )}
           
           {/* Your Offer */}
-          <Card className="panel-enhanced p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-foreground tracking-wide">Your Offer</h2>
+          <Card 
+            className={`panel-enhanced p-6 space-y-4 transition-all duration-300 ${
+              yourOfferActive ? 'ring-2 ring-primary shadow-[0_0_30px_rgba(0,206,209,0.3)]' : ''
+            }`}
+            onFocus={() => setYourOfferActive(true)}
+            onBlur={() => setYourOfferActive(false)}
+            onMouseEnter={() => setYourOfferActive(true)}
+            onMouseLeave={() => setYourOfferActive(false)}
+          >
+            <div className="flex items-center justify-between pb-2 border-b-2 border-primary/20">
+              <h2 className="text-3xl font-black text-foreground tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Your Offer
+              </h2>
               <div className="text-right space-y-2">
                 <div>
-                  <div className="text-sm text-muted-foreground font-medium">Total Value</div>
-                  <div className="text-2xl font-bold text-primary value-glow">{yourTotal.toFixed(1)}</div>
+                  <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Total Value</div>
+                  <div className="text-3xl font-black text-primary value-glow">{yourTotal.toFixed(1)}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-muted-foreground font-medium">Total Demand</div>
-                  <div className="text-xl font-bold text-accent value-glow demand-display">{yourDemandTotal.toFixed(1)}</div>
+                  <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Total Demand</div>
+                  <div className="text-2xl font-black demand-display">{yourDemandTotal.toFixed(1)}/10</div>
                 </div>
               </div>
             </div>
@@ -267,30 +386,73 @@ export const TradeCalculator = () => {
                 </div>
               ) : (
                 yourOffer.map(({ item, quantity }) => (
-                  <div
+                  <Collapsible
                     key={item.name}
-                    className="flex items-center justify-between p-3 bg-secondary rounded-lg border border-border hover:border-primary transition-colors"
+                    open={expandedYourItems.has(item.name)}
+                    onOpenChange={() => toggleYourItemExpanded(item.name)}
                   >
-                    <div className="flex-1">
-                      <div className="font-medium text-foreground">
-                        {item.name} {item.category === "boat" ? "🚤" : "🎣"}
-                        {item.status.toLowerCase().includes("mass duped") && " ⚠️"}
+                    <div className="bg-secondary rounded-lg border border-border hover:border-primary transition-all duration-200 animate-fade-in hover:shadow-lg">
+                      <div className="flex items-center justify-between p-3">
+                        <div className="flex-1 flex items-center gap-3">
+                          <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="sm" className="p-0 h-6 w-6">
+                              <ChevronRight className={`h-4 w-4 transition-transform duration-200 ${expandedYourItems.has(item.name) ? 'rotate-90' : ''}`} />
+                            </Button>
+                          </CollapsibleTrigger>
+                          <div>
+                            <div className="font-semibold text-foreground flex items-center gap-2">
+                              {item.name} {item.category === "boat" ? "🚤" : "🎣"}
+                              {item.status.toLowerCase().includes("mass duped") && " ⚠️"}
+                              <Badge className={getTierColor(item.tier)} variant="outline">{item.tier}</Badge>
+                            </div>
+                            <div className="text-sm text-muted-foreground font-medium">
+                              {item.value} × {quantity} = <span className="text-primary font-bold">{(item.value * quantity).toFixed(1)}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeFromYourOffer(item.name)}
+                          className="hover:bg-destructive/20 hover:text-destructive transition-colors"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <div className="text-sm text-muted-foreground">
-                        {item.value} × {quantity} = {(item.value * quantity).toFixed(1)} | Demand: {item.demand}/10
-                      </div>
+                      <CollapsibleContent className="px-3 pb-3 space-y-2 animate-accordion-down">
+                        <div className="pl-9 space-y-1 text-sm bg-background/50 rounded p-3">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Category:</span>
+                            <span className="font-semibold capitalize">{item.category}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Individual Value:</span>
+                            <span className="font-bold text-primary">{item.value}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Demand Level:</span>
+                            <span className={`font-bold ${getDemandColor(item.demand)}`}>{item.demand}/10</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Rarity Tier:</span>
+                            <Badge className={getTierColor(item.tier)} variant="outline">{item.tier}</Badge>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Status:</span>
+                            <span className="text-xs">{item.status}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Quantity:</span>
+                            <span className="font-semibold">{quantity}</span>
+                          </div>
+                          <div className="flex justify-between pt-2 border-t border-border">
+                            <span className="text-muted-foreground font-semibold">Total Contribution:</span>
+                            <span className="font-black text-primary text-lg">{(item.value * quantity).toFixed(1)}</span>
+                          </div>
+                        </div>
+                      </CollapsibleContent>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge className={getTierColor(item.tier)}>{item.tier}</Badge>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeFromYourOffer(item.name)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
+                  </Collapsible>
                 ))
               )}
             </div>
@@ -304,17 +466,27 @@ export const TradeCalculator = () => {
           </Card>
 
           {/* Their Offer */}
-          <Card className="panel-enhanced p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-foreground tracking-wide">Their Offer</h2>
+          <Card 
+            className={`panel-enhanced p-6 space-y-4 transition-all duration-300 ${
+              theirOfferActive ? 'ring-2 ring-primary shadow-[0_0_30px_rgba(0,206,209,0.3)]' : ''
+            }`}
+            onFocus={() => setTheirOfferActive(true)}
+            onBlur={() => setTheirOfferActive(false)}
+            onMouseEnter={() => setTheirOfferActive(true)}
+            onMouseLeave={() => setTheirOfferActive(false)}
+          >
+            <div className="flex items-center justify-between pb-2 border-b-2 border-primary/20">
+              <h2 className="text-3xl font-black text-foreground tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Their Offer
+              </h2>
               <div className="text-right space-y-2">
                 <div>
-                  <div className="text-sm text-muted-foreground font-medium">Total Value</div>
-                  <div className="text-2xl font-bold text-primary value-glow">{theirTotal.toFixed(1)}</div>
+                  <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Total Value</div>
+                  <div className="text-3xl font-black text-primary value-glow">{theirTotal.toFixed(1)}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-muted-foreground font-medium">Total Demand</div>
-                  <div className="text-xl font-bold text-accent value-glow demand-display">{theirDemandTotal.toFixed(1)}</div>
+                  <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Total Demand</div>
+                  <div className="text-2xl font-black demand-display">{theirDemandTotal.toFixed(1)}/10</div>
                 </div>
               </div>
             </div>
@@ -389,30 +561,73 @@ export const TradeCalculator = () => {
                 </div>
               ) : (
                 theirOffer.map(({ item, quantity }) => (
-                  <div
+                  <Collapsible
                     key={item.name}
-                    className="flex items-center justify-between p-3 bg-secondary rounded-lg border border-border hover:border-primary transition-colors"
+                    open={expandedTheirItems.has(item.name)}
+                    onOpenChange={() => toggleTheirItemExpanded(item.name)}
                   >
-                    <div className="flex-1">
-                      <div className="font-medium text-foreground">
-                        {item.name} {item.category === "boat" ? "🚤" : "🎣"}
-                        {item.status.toLowerCase().includes("mass duped") && " ⚠️"}
+                    <div className="bg-secondary rounded-lg border border-border hover:border-primary transition-all duration-200 animate-fade-in hover:shadow-lg">
+                      <div className="flex items-center justify-between p-3">
+                        <div className="flex-1 flex items-center gap-3">
+                          <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="sm" className="p-0 h-6 w-6">
+                              <ChevronRight className={`h-4 w-4 transition-transform duration-200 ${expandedTheirItems.has(item.name) ? 'rotate-90' : ''}`} />
+                            </Button>
+                          </CollapsibleTrigger>
+                          <div>
+                            <div className="font-semibold text-foreground flex items-center gap-2">
+                              {item.name} {item.category === "boat" ? "🚤" : "🎣"}
+                              {item.status.toLowerCase().includes("mass duped") && " ⚠️"}
+                              <Badge className={getTierColor(item.tier)} variant="outline">{item.tier}</Badge>
+                            </div>
+                            <div className="text-sm text-muted-foreground font-medium">
+                              {item.value} × {quantity} = <span className="text-primary font-bold">{(item.value * quantity).toFixed(1)}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeFromTheirOffer(item.name)}
+                          className="hover:bg-destructive/20 hover:text-destructive transition-colors"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <div className="text-sm text-muted-foreground">
-                        {item.value} × {quantity} = {(item.value * quantity).toFixed(1)} | Demand: {item.demand}/10
-                      </div>
+                      <CollapsibleContent className="px-3 pb-3 space-y-2 animate-accordion-down">
+                        <div className="pl-9 space-y-1 text-sm bg-background/50 rounded p-3">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Category:</span>
+                            <span className="font-semibold capitalize">{item.category}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Individual Value:</span>
+                            <span className="font-bold text-primary">{item.value}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Demand Level:</span>
+                            <span className={`font-bold ${getDemandColor(item.demand)}`}>{item.demand}/10</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Rarity Tier:</span>
+                            <Badge className={getTierColor(item.tier)} variant="outline">{item.tier}</Badge>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Status:</span>
+                            <span className="text-xs">{item.status}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Quantity:</span>
+                            <span className="font-semibold">{quantity}</span>
+                          </div>
+                          <div className="flex justify-between pt-2 border-t border-border">
+                            <span className="text-muted-foreground font-semibold">Total Contribution:</span>
+                            <span className="font-black text-primary text-lg">{(item.value * quantity).toFixed(1)}</span>
+                          </div>
+                        </div>
+                      </CollapsibleContent>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge className={getTierColor(item.tier)}>{item.tier}</Badge>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeFromTheirOffer(item.name)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
+                  </Collapsible>
                 ))
               )}
             </div>
@@ -421,21 +636,21 @@ export const TradeCalculator = () => {
 
         {/* Trade Result */}
         {(yourOffer.length > 0 || theirOffer.length > 0) && (
-          <Card className="panel-enhanced p-8">
+          <Card className="panel-enhanced p-8 space-y-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex-1 text-center md:text-left">
-                <div className="text-lg text-muted-foreground mb-2 font-medium">Trade Status</div>
+                <div className="text-xl text-muted-foreground mb-3 font-bold uppercase tracking-wider">Trade Status</div>
                 
                 {/* Value-based Trade Status */}
                 <div className="mb-4">
-                  <div className="text-sm text-muted-foreground mb-1 font-medium">By Value</div>
+                  <div className="text-sm text-muted-foreground mb-1 font-semibold uppercase tracking-wide">By Value</div>
                   <div className="flex items-center gap-3 justify-center md:justify-start">
-                    {tradeStatus.status === "win" && <TrendingUp className="h-6 w-6 text-success" />}
-                    {tradeStatus.status === "loss" && <TrendingDown className="h-6 w-6 text-destructive" />}
-                    {tradeStatus.status === "fair" && <Minus className="h-6 w-6 text-warning" />}
+                    {tradeStatus.status === "win" && <TrendingUp className="h-8 w-8 text-success" />}
+                    {tradeStatus.status === "loss" && <TrendingDown className="h-8 w-8 text-destructive" />}
+                    {tradeStatus.status === "fair" && <Minus className="h-8 w-8 text-warning" />}
                     <div className="text-center">
                       <span 
-                        className={`text-2xl font-black tracking-tight value-glow ${
+                        className={`text-4xl font-black tracking-tight value-glow ${
                           tradeStatus.status === "win" ? "text-success" :
                           tradeStatus.status === "loss" ? "text-destructive" :
                           "text-warning"
@@ -444,7 +659,7 @@ export const TradeCalculator = () => {
                         {tradeStatus.text}
                       </span>
                       <div 
-                        className={`text-sm font-bold tracking-wide ${
+                        className={`text-base font-bold tracking-wide ${
                           tradeStatus.status === "win" ? "text-success" :
                           tradeStatus.status === "loss" ? "text-destructive" :
                           "text-warning"
@@ -458,14 +673,14 @@ export const TradeCalculator = () => {
 
                 {/* Demand-based Trade Status */}
                 <div>
-                  <div className="text-sm text-muted-foreground mb-1 font-medium">By Demand</div>
+                  <div className="text-sm text-muted-foreground mb-1 font-semibold uppercase tracking-wide">By Demand</div>
                   <div className="flex items-center gap-3 justify-center md:justify-start">
-                    {demandTradeStatus.status === "win" && <TrendingUp className="h-6 w-6 text-success" />}
-                    {demandTradeStatus.status === "loss" && <TrendingDown className="h-6 w-6 text-destructive" />}
-                    {demandTradeStatus.status === "fair" && <Minus className="h-6 w-6 text-warning" />}
+                    {demandTradeStatus.status === "win" && <TrendingUp className="h-8 w-8 text-success" />}
+                    {demandTradeStatus.status === "loss" && <TrendingDown className="h-8 w-8 text-destructive" />}
+                    {demandTradeStatus.status === "fair" && <Minus className="h-8 w-8 text-warning" />}
                     <div className="text-center">
                       <span 
-                        className={`text-2xl font-black tracking-tight value-glow ${
+                        className={`text-4xl font-black tracking-tight value-glow ${
                           demandTradeStatus.status === "win" ? "text-success" :
                           demandTradeStatus.status === "loss" ? "text-destructive" :
                           "text-warning"
@@ -474,7 +689,7 @@ export const TradeCalculator = () => {
                         {demandTradeStatus.text}
                       </span>
                       <div 
-                        className={`text-sm font-bold tracking-wide ${
+                        className={`text-base font-bold tracking-wide ${
                           demandTradeStatus.status === "win" ? "text-success" :
                           demandTradeStatus.status === "loss" ? "text-destructive" :
                           "text-warning"
@@ -487,40 +702,54 @@ export const TradeCalculator = () => {
                 </div>
               </div>
               
-              <div className="flex flex-col gap-2 w-full md:w-auto">
+              <div className="flex-1 text-center md:text-right">
+                <div className="text-xl text-muted-foreground mb-3 font-bold uppercase tracking-wider">Summary</div>
+                <div className="text-foreground space-y-2 text-lg">
+                  <div>You give: <span className="text-primary font-black value-glow text-2xl">{yourTotal.toFixed(1)}</span></div>
+                  <div>You get: <span className="text-primary font-black value-glow text-2xl">{theirTotal.toFixed(1)}</span></div>
+                  <div className="pt-2 border-t border-border">Difference: <span className={`font-black text-2xl ${difference > 0 ? 'text-success' : difference < 0 ? 'text-destructive' : 'text-warning'}`}>{difference > 0 ? "+" : ""}{difference.toFixed(1)}</span></div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex flex-col md:flex-row gap-3 pt-4 border-t border-border">
+              <div className="flex-1">
                 <textarea
                   placeholder="Add notes about this trade (optional)"
-                  className="w-full p-3 rounded-lg border border-border bg-background text-sm md:text-base resize-none focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                  className="w-full p-3 rounded-lg border border-border bg-background text-sm md:text-base resize-none focus:ring-2 focus:ring-primary/30 transition-all duration-200"
                   rows={2}
                   value={tradeNotes}
                   onChange={(e) => setTradeNotes(e.target.value)}
                 />
+              </div>
+              <div className="flex flex-col gap-2 md:w-auto">
                 <Button 
-                  className="gap-2 text-sm md:text-base py-2 md:py-3 btn-enhanced" 
+                  className="gap-2 text-sm md:text-base py-2 md:py-3 btn-enhanced font-bold" 
                   onClick={saveTrade}
                   disabled={yourOffer.length === 0 || theirOffer.length === 0}
                 >
                   <Save className="h-4 w-4" />
                   Save Trade
                 </Button>
-              </div>
-              
-              <div className="flex-1 text-center">
-                <div className="text-lg text-muted-foreground mb-2 font-medium">Value Difference</div>
-                <div className="text-4xl font-bold text-primary value-glow">
-                  {difference > 0 ? "+" : ""}{difference.toFixed(1)}
-                </div>
-                <div className="text-lg text-muted-foreground mt-1 font-medium">
-                  ({percentageDiff > 0 ? "+" : ""}{percentageDiff.toFixed(1)}%)
-                </div>
-              </div>
-
-              <div className="flex-1 text-center md:text-right">
-                <div className="text-lg text-muted-foreground mb-2 font-medium">Summary</div>
-                <div className="text-foreground space-y-1">
-                  <div>You give: <span className="text-primary font-bold value-glow">{yourTotal.toFixed(1)}</span></div>
-                  <div>You get: <span className="text-primary font-bold value-glow">{theirTotal.toFixed(1)}</span></div>
-                </div>
+                <Button 
+                  variant="outline"
+                  className="gap-2 text-sm md:text-base py-2 md:py-3 btn-enhanced font-bold" 
+                  onClick={shareTrade}
+                  disabled={yourOffer.length === 0 || theirOffer.length === 0}
+                >
+                  <Share2 className="h-4 w-4" />
+                  Share Trade
+                </Button>
+                <Button 
+                  variant="secondary"
+                  className="gap-2 text-sm md:text-base py-2 md:py-3 btn-enhanced font-bold" 
+                  onClick={balanceTrade}
+                  disabled={yourOffer.length === 0 || theirOffer.length === 0}
+                >
+                  <Scale className="h-4 w-4" />
+                  Balance Trade
+                </Button>
               </div>
             </div>
           </Card>
