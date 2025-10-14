@@ -224,22 +224,36 @@ All colors MUST be HSL.
     ring-offset: 2px;
   }
 
-  /* Improved scrollbar styling */
-  ::-webkit-scrollbar {
-    width: 8px;
+  /* Enhanced demand display styling */
+  .demand-display {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-foreground) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    /* Removed the blur-causing filter */
   }
 
-  ::-webkit-scrollbar-track {
-    background: hsl(var(--muted));
-    border-radius: 4px;
+  .trade-status-section {
+    background: linear-gradient(135deg, var(--card) 0%, var(--muted) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    box-shadow: var(--shadow-panel);
+    transition: all 0.3s ease;
   }
 
-  ::-webkit-scrollbar-thumb {
-    background: hsl(var(--primary) / 0.5);
-    border-radius: 4px;
+  .trade-status-section:hover {
+    box-shadow: var(--shadow-glow);
+    border-color: var(--primary);
   }
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--primary) / 0.7);
+  .status-indicator {
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  }
+
+  .status-indicator:hover {
+    transform: scale(1.1);
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
   }
 }

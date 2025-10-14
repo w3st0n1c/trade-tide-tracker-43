@@ -1,0 +1,65 @@
+/* Enhanced Nessie Value Section Styling */
+.nessie-category {
+  background: linear-gradient(135deg, rgba(var(--primary), 0.05) 0%, rgba(var(--accent), 0.05) 100%);
+  border: 1px solid rgba(var(--border), 0.8);
+  transition: all 0.3s ease;
+}
+
+.nessie-category:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: rgba(var(--primary), 0.3);
+}
+
+.nessie-item {
+  background: rgba(var(--background), 0.8);
+  border: 1px solid rgba(var(--border), 0.6);
+  transition: all 0.2s ease;
+}
+
+.nessie-item:hover {
+  background: rgba(var(--accent), 0.1);
+  border-color: rgba(var(--primary), 0.4);
+  transform: translateX(4px);
+}
+
+.nessie-value {
+  background: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--primary)) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 20px rgba(var(--accent), 0.3);
+  animation: nessieValueGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes nessieValueGlow {
+  0% {
+    filter: brightness(1);
+  }
+  100% {
+    filter: brightness(1.2);
+  }
+}
+
+/* Enhanced search and filter styling */
+.nessie-category input[type="text"],
+.nessie-category select {
+  background: rgba(var(--background), 0.9);
+  border: 1px solid rgba(var(--border), 0.8);
+  transition: all 0.2s ease;
+}
+
+.nessie-category input[type="text"]:focus,
+.nessie-category select:focus {
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 2px rgba(var(--primary), 0.2);
+}
+
+/* Badge enhancements */
+.nessie-category .badge {
+  transition: all 0.2s ease;
+}
+
+.nessie-item:hover .badge {
+  transform: scale(1.05);
+}

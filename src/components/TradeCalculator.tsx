@@ -63,10 +63,19 @@ export const TradeCalculator = () => {
     return offer.reduce((sum, { item, quantity }) => sum + (item.value * quantity), 0);
   };
 
+  const calculateDemandTotal = (offer: TradeItem[]) => {
+    return offer.reduce((sum, { item, quantity }) => sum + (item.demand * quantity), 0);
+  };
+
   const yourTotal = calculateTotal(yourOffer);
   const theirTotal = calculateTotal(theirOffer);
   const difference = theirTotal - yourTotal;
   const percentageDiff = yourTotal > 0 ? ((difference / yourTotal) * 100) : 0;
+
+  const yourDemandTotal = calculateDemandTotal(yourOffer);
+  const theirDemandTotal = calculateDemandTotal(theirOffer);
+  const demandDifference = theirDemandTotal - yourDemandTotal;
+  const demandPercentageDiff = yourDemandTotal > 0 ? ((demandDifference / yourDemandTotal) * 100) : 0;
 
   const getTradeStatus = () => {
     if (difference > 0) return { status: "win", text: "WIN", color: "success" };
@@ -74,7 +83,14 @@ export const TradeCalculator = () => {
     return { status: "fair", text: "FAIR", color: "warning" };
   };
 
+  const getDemandTradeStatus = () => {
+    if (demandDifference > 0) return { status: "win", text: "WIN", color: "success" };
+    if (demandDifference < 0) return { status: "loss", text: "LOSS", color: "destructive" };
+    return { status: "fair", text: "FAIR", color: "warning" };
+  };
+
   const tradeStatus = getTradeStatus();
+  const demandTradeStatus = getDemandTradeStatus();
   
   // Generate recommendations based on trade balance
   const yourRecommendations = useMemo(() => 
@@ -169,9 +185,15 @@ export const TradeCalculator = () => {
           <Card className="panel-enhanced p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-foreground tracking-wide">Your Offer</h2>
-              <div className="text-right">
-                <div className="text-sm text-muted-foreground font-medium">Total Value</div>
-                <div className="text-2xl font-bold text-primary value-glow">{yourTotal.toFixed(1)}</div>
+              <div className="text-right space-y-2">
+                <div>
+                  <div className="text-sm text-muted-foreground font-medium">Total Value</div>
+                  <div className="text-2xl font-bold text-primary value-glow">{yourTotal.toFixed(1)}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground font-medium">Total Demand</div>
+                  <div className="text-xl font-bold text-accent value-glow demand-display">{yourDemandTotal.toFixed(1)}</div>
+                </div>
               </div>
             </div>
 
@@ -285,9 +307,15 @@ export const TradeCalculator = () => {
           <Card className="panel-enhanced p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-foreground tracking-wide">Their Offer</h2>
-              <div className="text-right">
-                <div className="text-sm text-muted-foreground font-medium">Total Value</div>
-                <div className="text-2xl font-bold text-primary value-glow">{theirTotal.toFixed(1)}</div>
+              <div className="text-right space-y-2">
+                <div>
+                  <div className="text-sm text-muted-foreground font-medium">Total Value</div>
+                  <div className="text-2xl font-bold text-primary value-glow">{theirTotal.toFixed(1)}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground font-medium">Total Demand</div>
+                  <div className="text-xl font-bold text-accent value-glow demand-display">{theirDemandTotal.toFixed(1)}</div>
+                </div>
               </div>
             </div>
 
@@ -397,28 +425,63 @@ export const TradeCalculator = () => {
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex-1 text-center md:text-left">
                 <div className="text-lg text-muted-foreground mb-2 font-medium">Trade Status</div>
-                <div className="flex items-center gap-3 justify-center md:justify-start">
-                  {tradeStatus.status === "win" && <TrendingUp className="h-8 w-8 text-success" />}
-                  {tradeStatus.status === "loss" && <TrendingDown className="h-8 w-8 text-destructive" />}
-                  {tradeStatus.status === "fair" && <Minus className="h-8 w-8 text-warning" />}
-                  <div className="text-center">
-                    <span 
-                      className={`text-4xl font-black tracking-tight value-glow ${
-                        tradeStatus.status === "win" ? "text-success" :
-                        tradeStatus.status === "loss" ? "text-destructive" :
-                        "text-warning"
-                      }`}
-                    >
-                      {tradeStatus.text}
-                    </span>
-                    <div 
-                      className={`text-lg font-bold tracking-wide ${
-                        tradeStatus.status === "win" ? "text-success" :
-                        tradeStatus.status === "loss" ? "text-destructive" :
-                        "text-warning"
-                      }`}
-                    >
-                      {difference > 0 ? "+" : ""}{difference.toFixed(1)} ({percentageDiff > 0 ? "+" : ""}{percentageDiff.toFixed(1)}%)
+                
+                {/* Value-based Trade Status */}
+                <div className="mb-4">
+                  <div className="text-sm text-muted-foreground mb-1 font-medium">By Value</div>
+                  <div className="flex items-center gap-3 justify-center md:justify-start">
+                    {tradeStatus.status === "win" && <TrendingUp className="h-6 w-6 text-success" />}
+                    {tradeStatus.status === "loss" && <TrendingDown className="h-6 w-6 text-destructive" />}
+                    {tradeStatus.status === "fair" && <Minus className="h-6 w-6 text-warning" />}
+                    <div className="text-center">
+                      <span 
+                        className={`text-2xl font-black tracking-tight value-glow ${
+                          tradeStatus.status === "win" ? "text-success" :
+                          tradeStatus.status === "loss" ? "text-destructive" :
+                          "text-warning"
+                        }`}
+                      >
+                        {tradeStatus.text}
+                      </span>
+                      <div 
+                        className={`text-sm font-bold tracking-wide ${
+                          tradeStatus.status === "win" ? "text-success" :
+                          tradeStatus.status === "loss" ? "text-destructive" :
+                          "text-warning"
+                        }`}
+                      >
+                        {difference > 0 ? "+" : ""}{difference.toFixed(1)} ({percentageDiff > 0 ? "+" : ""}{percentageDiff.toFixed(1)}%)
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Demand-based Trade Status */}
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1 font-medium">By Demand</div>
+                  <div className="flex items-center gap-3 justify-center md:justify-start">
+                    {demandTradeStatus.status === "win" && <TrendingUp className="h-6 w-6 text-success" />}
+                    {demandTradeStatus.status === "loss" && <TrendingDown className="h-6 w-6 text-destructive" />}
+                    {demandTradeStatus.status === "fair" && <Minus className="h-6 w-6 text-warning" />}
+                    <div className="text-center">
+                      <span 
+                        className={`text-2xl font-black tracking-tight value-glow ${
+                          demandTradeStatus.status === "win" ? "text-success" :
+                          demandTradeStatus.status === "loss" ? "text-destructive" :
+                          "text-warning"
+                        }`}
+                      >
+                        {demandTradeStatus.text}
+                      </span>
+                      <div 
+                        className={`text-sm font-bold tracking-wide ${
+                          demandTradeStatus.status === "win" ? "text-success" :
+                          demandTradeStatus.status === "loss" ? "text-destructive" :
+                          "text-warning"
+                        }`}
+                      >
+                        {demandDifference > 0 ? "+" : ""}{demandDifference.toFixed(1)} ({demandPercentageDiff > 0 ? "+" : ""}{demandPercentageDiff.toFixed(1)}%)
+                      </div>
                     </div>
                   </div>
                 </div>
