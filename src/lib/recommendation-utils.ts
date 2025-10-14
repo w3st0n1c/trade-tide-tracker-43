@@ -10,7 +10,7 @@ export function getItemRecommendations(
   currentItems: TradeItem[],
   isYourOffer: boolean,
   otherSideItems: TradeItem[] = [],
-  limit: number = 3
+  limit = 3
 ): Item[] {
   // If no items selected on either side, return empty array
   if (currentItems.length === 0 && isYourOffer) {
