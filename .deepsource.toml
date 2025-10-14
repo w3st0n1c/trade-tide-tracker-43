@@ -5,9 +5,10 @@ name = "javascript"
 enabled = true
 
   [analyzers.meta]
-  # Optional: Auto-fix ESLint issues
-  auto_fix = true
-
-[[analyzers]]
-name = "node"
-enabled = true
+  plugins = ["react"]
+  environment = ["nodejs", "browser"]
+  module_system = "es-modules"
+  dialect = "typescript"
+  skip_doc_coverage = ["class-expression", "method-definition"]
+  cyclomatic_complexity_threshold = "high"
+  style_guide = "airbnb"
