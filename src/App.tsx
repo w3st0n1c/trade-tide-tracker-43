@@ -7,6 +7,7 @@ import { ThemeProvider } from "next-themes";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import "./styles/ui-enhancements.css";
+import "./styles/liquid-glass.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -14,7 +15,7 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="liquid" enableSystem>
       <TooltipProvider>
         <Toaster />
         <Sonner />

@@ -1,0 +1,97 @@
+/* Liquid Glass Theme: watery gradients, glass panels, soft motion */
+
+.liquid {
+  /* Palette: aqua/teal/cyan with soft depths */
+  --background: 195 60% 97%;
+  --foreground: 220 25% 12%;
+
+  --card: 195 60% 99%;
+  --card-foreground: 220 25% 12%;
+
+  --popover: 195 60% 99%;
+  --popover-foreground: 220 25% 12%;
+
+  --primary: 193 95% 46%; /* cyan */
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 200 30% 90%;
+  --secondary-foreground: 220 25% 12%;
+
+  --muted: 200 25% 92%;
+  --muted-foreground: 220 15% 35%;
+
+  --accent: 188 90% 45%; /* aqua */
+  --accent-foreground: 0 0% 100%;
+
+  --success: 160 65% 42%;
+  --success-foreground: 0 0% 100%;
+
+  --destructive: 0 84% 56%;
+  --destructive-foreground: 0 0% 100%;
+
+  --warning: 40 92% 50%;
+  --warning-foreground: 220 25% 12%;
+
+  --border: 200 20% 80%;
+  --input: 200 25% 92%;
+  --ring: 193 95% 46%;
+
+  /* Liquid gradients and shadows */
+  --gradient-background: radial-gradient(1200px 600px at 20% 0%, hsl(195 60% 96%), hsl(200 50% 92%)),
+    radial-gradient(900px 500px at 80% 100%, hsl(193 95% 90%), hsl(200 50% 92%));
+  --gradient-panel: linear-gradient(145deg, hsl(195 60% 98% / 0.85), hsl(200 50% 95% / 0.9));
+  --gradient-ocean: linear-gradient(135deg, hsl(193 95% 46%), hsl(188 90% 45%), hsl(206 80% 55%));
+  --gradient-card: linear-gradient(180deg, hsl(195 60% 99%), hsl(195 55% 97%));
+
+  --shadow-panel: 0 8px 30px -10px hsl(200 25% 40% / 0.25), 0 0 0 1px hsl(200 20% 80% / 0.7);
+  --shadow-glow: 0 0 40px hsl(193 95% 46% / 0.15);
+  --shadow-value-glow: 0 0 20px hsl(193 95% 46% / 0.35);
+}
+
+/* Subtle liquid motion background */
+.liquid body::before,
+.liquid body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.liquid body::before {
+  background: radial-gradient(600px 300px at 10% 10%, hsl(193 95% 70% / 0.18), transparent),
+    radial-gradient(500px 250px at 90% 80%, hsl(206 80% 65% / 0.14), transparent);
+  filter: blur(24px);
+  animation: drift 22s ease-in-out infinite alternate;
+}
+
+.liquid body::after {
+  background: radial-gradient(700px 350px at 70% 20%, hsl(188 90% 65% / 0.16), transparent);
+  filter: blur(28px);
+  animation: drift2 28s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(10px, -6px, 0) scale(1.03); }
+  100% { transform: translate3d(-8px, 8px, 0) scale(1.01); }
+}
+
+@keyframes drift2 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-12px, 6px, 0) scale(1.02); }
+  100% { transform: translate3d(8px, -8px, 0) scale(1.01); }
+}
+
+/* Extra glass polish on cards/buttons */
+.liquid .panel-enhanced {
+  backdrop-filter: blur(14px) saturate(1.05);
+}
+
+.liquid .btn-enhanced:hover {
+  box-shadow: 0 6px 16px hsl(var(--primary) / 0.22);
+}
+
+.liquid .value-glow {
+  text-shadow: 0 0 30px hsl(193 95% 46% / 0.35);
+}

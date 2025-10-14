@@ -5,11 +5,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ChevronDown, X, TrendingUp, TrendingDown, Minus, List, Save, Share2, Scale, ChevronRight, Coins, Flame } from "lucide-react";
+import { ChevronDown, X, TrendingUp, TrendingDown, Minus, List, Save, Share2, Scale, ChevronRight, Coins, Flame, Star } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
+import { useFavorites } from "@/hooks/use-favorites";
 import { ItemsList } from "./ItemsList";
 import { ThemeToggle } from "./ui/theme-toggle";
 import { TradeHistory } from "./TradeHistory";
@@ -35,6 +36,7 @@ export const TradeCalculator = () => {
   const [theirOfferActive, setTheirOfferActive] = useState(false);
   const { addTrade } = useTradeHistory();
   const { toast } = useToast();
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
 
   const addToYourOffer = (item: Item) => {
     const existing = yourOffer.find(t => t.item.name === item.name);
@@ -117,6 +119,13 @@ export const TradeCalculator = () => {
     getItemRecommendations(theirOffer, false, yourOffer), 
     [theirOffer, yourOffer]
   );
+
+  // Sort Your Offer so favorites appear on top while preserving original order within groups
+  const sortedYourOffer = useMemo(() => {
+    const fav = yourOffer.filter(({ item }) => isFavorite(item.name));
+    const non = yourOffer.filter(({ item }) => !isFavorite(item.name));
+    return [...fav, ...non];
+  }, [yourOffer, favorites]);
 
   const saveTrade = () => {
     if (yourOffer.length === 0 || theirOffer.length === 0) {
@@ -409,7 +418,7 @@ export const TradeCalculator = () => {
                   No items added
                 </div>
               ) : (
-                yourOffer.map(({ item, quantity }) => (
+                sortedYourOffer.map(({ item, quantity }) => (
                   <Collapsible
                     key={item.name}
                     open={expandedYourItems.has(item.name)}
@@ -428,20 +437,32 @@ export const TradeCalculator = () => {
                               {item.name} {item.category === "boat" ? "🚤" : "🎣"}
                               {item.status.toLowerCase().includes("mass duped") && " ⚠️"}
                               <Badge className={getTierColor(item.tier)} variant="outline">{item.tier}</Badge>
+                              {isFavorite(item.name) && <Star className="h-4 w-4 text-yellow-400" />}
                             </div>
                             <div className="text-sm text-muted-foreground font-medium">
                               {item.value} × {quantity} = <span className="text-primary font-bold">{(item.value * quantity).toFixed(1)}</span>
                             </div>
                           </div>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeFromYourOffer(item.name)}
-                          className="hover:bg-destructive/20 hover:text-destructive transition-colors"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toggleFavorite(item.name)}
+                            className={`transition-colors ${isFavorite(item.name) ? 'text-yellow-500 hover:bg-yellow-500/10' : 'text-muted-foreground hover:bg-secondary/50'}`}
+                            title={isFavorite(item.name) ? 'Unfavorite' : 'Favorite'}
+                          >
+                            <Star className={`h-4 w-4 ${isFavorite(item.name) ? 'text-yellow-500' : ''}`} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeFromYourOffer(item.name)}
+                            className="hover:bg-destructive/20 hover:text-destructive transition-colors"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                       <CollapsibleContent className="px-3 pb-3 space-y-2 animate-accordion-down">
                         <div className="pl-9 space-y-1 text-sm bg-background/50 rounded p-3">
