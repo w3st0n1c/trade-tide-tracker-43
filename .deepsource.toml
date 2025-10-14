@@ -1,7 +1,13 @@
 version = 1
 
 [[analyzers]]
-name = "eslint"
+name = "javascript"
+enabled = true
+
+  [analyzers.meta]
+  # Optional: Auto-fix ESLint issues
+  auto_fix = true
 
 [[analyzers]]
 name = "node"
+enabled = true
